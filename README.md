@@ -1,3 +1,3 @@
-# npgm
+# BSpline
 
-this is an edit
+Implements BSplines and their first order derivatives.
