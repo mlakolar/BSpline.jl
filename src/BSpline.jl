@@ -32,7 +32,7 @@ end
 #    B-spline basis function value, nonzero for a knot span of n
 
 
-function bspline_basis(j::Integer, bs::BSplineT, x::Float64)
+function bspline_basis(j::Integer, bs::BSplineT, x)
 
   n = bs.M
   t = bs.knots
@@ -108,7 +108,7 @@ function BSplineT(M::Int64, lb::Float64, ub::Float64, num_knots::Int64)
 end
 
 
-function derivative_bspline_basis(j::Integer, bs::BSplineT, x::Float64)
+function derivative_bspline_basis(j::Integer, bs::BSplineT, x)
 
   n = bs.M
   t = bs.knots
@@ -135,7 +135,6 @@ function derivative_bspline_basis(j::Integer, bs::BSplineT, x::Float64)
   return y
 end
 
-
 function derivative_bspline_basismatrix!(out::Matrix{Float64},
                                          bs::BSplineT, x::Vector{Float64})
   for j = 1 : num_basis(bs)
@@ -151,6 +150,50 @@ function derivative_bspline_basismatrix!(out::Matrix{Float64},
     out[1,j] = derivative_bspline_basis(j-1,bs,x);
   end
 end
+
+function derivative2_bspline_basis(j::Integer, bs::BSplineT, x)
+
+  n = bs.M
+  t = bs.knots
+
+  y = 0.
+  if n > 1
+    dn = n - 1
+    dd = t[j+n] - t[j+1]
+    if dd != 0  # indeterminate forms 0/0 are deemed to be zero
+      b = derivative_bspline_basis(j, BSplineT(n-1, t), x)
+      y = y + b*(dn/dd)
+    end
+
+    dn = 1 - n
+    dd = t[j+n+1] - t[j+2]
+    if dd != 0
+      b = derivative_bspline_basis(j+1, BSplineT(n-1, t), x)
+      y = y + b*(dn/dd)
+    end
+  else
+    y = t[j+1] <= x < t[j+2] ? 1. : 0.
+  end
+
+  return y
+end
+
+function derivative2_bspline_basismatrix!(out::Matrix{Float64},
+                                         bs::BSplineT, x::Vector{Float64})
+  for j = 1 : num_basis(bs)
+    for k = 1 : length(x)
+      out[k,j] = derivative2_bspline_basis(j-1,bs,x[k]);
+    end
+  end
+end
+
+function derivative2_bspline_basismatrix!(out::Matrix{Float64},
+                                         bs::BSplineT, x::Float64)
+  for j = 1 : num_basis(bs)
+    out[1,j] = derivative2_bspline_basis(j-1,bs,x);
+  end
+end
+
 
 
 end
