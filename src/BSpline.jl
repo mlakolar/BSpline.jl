@@ -21,9 +21,9 @@ function BSplineT{T<:FloatingPoint}(M::Int64, lb::T, ub::T, num_knots::Int64)
   h = (ub - lb) / (num_knots - 1)
 
   BSplineT{T}(M,
-             vcat(lb .- h * [M-1:-1:1],
+             vcat(lb .- h * [M-1:-1:1;],
                   linspace(lb, ub, num_knots),
-                  ub .+ h * [1:M-1]))
+                  ub .+ h * [1:M-1;]))
 end
 
 
