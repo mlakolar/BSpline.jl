@@ -1,5 +1,25 @@
 # BSpline.jl
 
+> **Archived.** This package is no longer maintained. Use the registered
+> [BSplineKit.jl](https://github.com/jipolanco/BSplineKit.jl), which computes the
+> same basis functions and derivatives. For `x` in `[lb, ub]`, the basis
+> `BSplineT(M, lb, ub, num_knots)` and its matrices translate as follows, with
+> one-based basis indices:
+>
+> ```julia
+> using BSplineKit
+> h = (ub - lb) / (num_knots - 1)
+> knots = vcat(lb .- h .* (M-1:-1:1), range(lb, ub; length=num_knots), ub .+ h .* (1:M-1))
+> B = BSplineBasis(BSplineOrder(M), knots; augment=Val(false))
+> X = collocation_matrix(B, x, Derivative(0), Matrix{Float64})  # bspline_basismatrix(bs, x)
+> D = collocation_matrix(B, x, Derivative(2), Matrix{Float64})  # derivative2_bspline_basismatrix(bs, x)
+> Ω = galerkin_matrix(B, (Derivative(2), Derivative(2)))        # exact roughness penalty on [lb, ub]
+> ```
+>
+> For a knot vector `t`, use `BSplineBasis(BSplineOrder(M), t; augment=Val(false))`.
+> BSplineKit takes the left limit at the last knot, so a clamped basis also sums
+> to one there.
+
 [![CI](https://github.com/mlakolar/BSpline.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/mlakolar/BSpline.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 [![codecov](https://codecov.io/gh/mlakolar/BSpline.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/mlakolar/BSpline.jl)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
